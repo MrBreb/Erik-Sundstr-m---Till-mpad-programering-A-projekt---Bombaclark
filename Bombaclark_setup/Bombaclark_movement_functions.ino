@@ -4,8 +4,8 @@
 * @author Erik Sundström
 * @date 2026-05-21
 * * Beskrivning:
-* Denna kod tar inehåller all Bombaclarks rörelselogik. Koden ser till att 
-* servona rör sig i rätt ordning för att bilda gångstilar och inehåller 
+* Denna kod tar innehåller all Bombaclarks rörelselogik. Koden ser till att 
+* servona rör sig i rätt ordning för att bilda gångstilar och innehåller 
 * Utkommenterad kod som kollar efter och utför kommandon som skickas in via 
 * serial monitorn för manuella tester och servo-kalibreringar.
 * * Hårdvarukrav & I/O:
@@ -17,7 +17,7 @@ int hip_pos[4] = {neutral_pos, neutral_pos, neutral_pos, neutral_pos}; ///< En a
 int leg_pos[4] = {neutral_pos, neutral_pos, neutral_pos, neutral_pos}; ///< En array som lagrar vilken position varje ben servo har - 0:fl 1:fr 2:bl 3:br
 
 // ========================================
-// Definerar namn åt alla servon
+// Definerar namn åt alla servon.
 // ========================================
 const int FL_LEG = 4, FL_HIP = 3;
 const int FR_LEG = 5, FR_HIP = 2;
@@ -25,9 +25,9 @@ const int BL_LEG = 6, BL_HIP = 1;
 const int BR_LEG = 7, BR_HIP = 0;
 
 /**
-* @brief Styr ett specifikt servo till en önskad vinkel (pos variabeln)
-* @param which_servo Vilekn servo som ska styras
-* @param pos Önskad vinkel mellan 0 och 180 grader
+* @brief Styr ett specifikt servo till en önskad vinkel (pos variabeln).
+* @param which_servo Vilekn servo som ska styras.
+* @param pos Önskad vinkel mellan 0 och 180 grader.
 * @note Eftersom att FL_HIP, BL_HIP, FR_LEG och BL_LEG är inverterade har jag satt att pos = 180 - pos 
 * när which servo är en av dessa. Då ifall pos är 40 så blir det istället 140, vise-versa.
 */ 
@@ -51,9 +51,9 @@ int get_limb_id(String limb){
 }
 
 /**
-* @brief Funktion som underlättar att röra ett ben, används även i funktionen "single_step"
-* @param Which_limb Sträng för vilket ben som ska röras
-* @param which_pos Önskad vinkelposition för det valda benet
+* @brief Funktion som underlättar att röra ett ben, används även i funktionen "single_step".
+* @param Which_limb Sträng för vilket ben som ska röras.
+* @param which_pos Önskad vinkelposition för det valda benet.
 */ 
 void move_one_leg(String Which_limb, int which_pos){
   int id = get_limb_id(Which_limb);
@@ -65,10 +65,10 @@ void move_one_leg(String Which_limb, int which_pos){
 }
 
 /**
-* @brief Funktion som underlättar att ta ett steg. Vrid ben uppåt, flytta fram höft, vrid ben neråt
-* @param Which_limb Sträng för vilket ben som ska ta steget
-* @param which_pos Önskad höftvinkel för steget
-* @note Innehåller matematisk invertering för de servon som är fysiskt spegelvända på robotkroppen
+* @brief Funktion som underlättar att ta ett steg. Vrid ben uppåt, flytta fram höft, vrid ben neråt.
+* @param Which_limb Sträng för vilket ben som ska ta steget.
+* @param which_pos Önskad höftvinkel för steget.
+* @note Innehåller matematisk invertering för de servon som är fysiskt spegelvända på robotkroppen.
 */ 
 void single_step(String Which_limb, int which_pos){
   int id = get_limb_id(Which_limb);
@@ -88,8 +88,8 @@ void single_step(String Which_limb, int which_pos){
 }
 
 /**
-* @brief Återställer alla servopositioner till den valnliga stående positionen
-* @note Funktionen flyttar först till pos 110 för att visualisera återställninen, funktionen används endast vid manuell testing och kalibrering
+* @brief Återställer alla servopositioner till den valnliga stående positionen.
+* @note Funktionen flyttar först till pos 110 för att visualisera återställninen.
 */ 
 void idle_reset(){ 
   single_step("fl", 110);
@@ -103,8 +103,8 @@ void idle_reset(){
 }
 
 /**
-* @brief Återställer alla servopositioner till den stående positionen
-* @note Denna funktionen gör inget om alla servos redan är i den stående positionen, körs när kommando kön är slut
+* @brief Återställer alla servopositioner till den stående positionen.
+* @note Denna funktionen gör inget om alla servos redan är i den stående positionen, körs när kommando kön är slut.
 */ 
 void idle(){
   single_step("fl", neutral_pos);
@@ -114,10 +114,10 @@ void idle(){
 }
 
 /**
-* @brief Flyttar alla ben framåt ett i taget och sedan puttar alla ben bakåt samtidigt
+* @brief Flyttar alla ben framåt ett i taget och sedan puttar alla ben bakåt samtidigt.
 * @note Bombaclark måste gå så här eftersom den är fyrbent och bara har två leder per ben, 
 * när Bombaclark går som ett vanlig djur blir den väldigt ostabil vilket gör att den ramlar 
-* hela tiden och inte kommer någon vart
+* hela tiden och inte kommer någon vart.
 */ 
 void walk_forward(){
   /* Flyttar alla ben framåt, ett ben i taget */
@@ -136,10 +136,10 @@ void walk_forward(){
 }
 
 /**
-* @brief Flyttar alla ben bakåt ett i taget och sedan drar alla ben framåt samtidigt
+* @brief Flyttar alla ben bakåt ett i taget och sedan drar alla ben framåt samtidigt.
 * @note Bombaclark måste gå så här eftersom den är fyrbent och bara har två leder per ben, 
 * när Bombaclark går som ett vanlig djur blir den väldigt ostabil vilket gör att den ramlar 
-* hela tiden och inte kommer någon vart
+* hela tiden och inte kommer någon vart.
 */ 
 void walk_backward(){
   /* Flyttar alla ben bakåt, ett ben i taget */
@@ -158,7 +158,7 @@ void walk_backward(){
 }
 
 /**
-* @brief Flyttar alla ben till höger ett i taget och sedan drar alla ben åt vänster samtidigt
+* @brief Flyttar alla ben till höger ett i taget och sedan drar alla ben åt vänster samtidigt.
 */ 
 void walk_right(){
   /* Flyttar alla ben till höger, ett ben i taget */
@@ -177,7 +177,7 @@ void walk_right(){
 }
 
 /**
-* @brief Flyttar alla ben till vänster ett i taget och sedan drar alla ben åt höger samtidigt
+* @brief Flyttar alla ben till vänster ett i taget och sedan drar alla ben åt höger samtidigt.
 */ 
 void walk_left(){
   /* Flyttar alla ben till vänster, ett ben i taget */
@@ -196,9 +196,9 @@ void walk_left(){
 }
 
 /**
-* @brief Får Bombaclark att vrida upp ena sidan av sin kropp och vinka med sitt högra framben
+* @brief Får Bombaclark att vrida upp ena sidan av sin kropp och vinka med sitt högra framben.
 * @note Positionerar först benen så att roboten lutar snett bakåt för stabilitet, sedan
-* vinkar den 5 gånger i en förinställd hastighet
+* vinkar den 5 gånger i en förinställd hastighet.
 */ 
 void wave(){
   idle();
@@ -218,7 +218,7 @@ void wave(){
 }
 
 /**
-* @brief Gör att Bombaclark nickar (säger ja) genom att vrida frambenen uppåt och neråt tre gånger
+* @brief Gör att Bombaclark nickar (säger ja) genom att vrida frambenen uppåt och neråt tre gånger.
 */ 
 void yes(){
   for(int i = 0; i < 3; i++){
@@ -233,7 +233,7 @@ void yes(){
 }
 
 /**
-* @brief Får Bombaclark att skaka på huvudet (säga nej) genom att vrida de främre höfterna fram och tillbaka tre gånger
+* @brief Får Bombaclark att skaka på huvudet (säga nej) genom att vrida de främre höfterna fram och tillbaka tre gånger.
 */ 
 void no(){
   for(int i = 0; i < 3; i++){
@@ -253,10 +253,10 @@ String input_string = "";
 int temp_int = 90;
 
 /**
-* @brief Tar emot textinput från Serial Monitor och konverterar det till ett heltal (integer)
-* @return Det inmatade heltalet från Serial Monitor
+* @brief Tar emot textinput från Serial Monitor och konverterar det till ett heltal (integer).
+* @return Det inmatade heltalet från Serial Monitor.
 * @note Denna funktion används enbart för manuell kalibrering av enskilda servon. Loopen 
-* väntar aktivt tills data finns tillgängligt för att inte läsa tomma strängar
+* väntar aktivt tills data finns tillgängligt för att inte läsa tomma strängar.
 */ 
 int get_integer() {
   while (Serial.available() == 0) { 
@@ -267,9 +267,9 @@ int get_integer() {
 }
 
 /**
-* @brief Testnings- och kalibrerings loop som lyssnar efter manuella kommandon via Serial Monitor
+* @brief Testnings- och kalibrerings loop som lyssnar efter manuella kommandon via Serial Monitor.
 * @note Används enbart för manuella tester och servo-kalibrering, bör vara utkommenterad när den 
-* inte används då programmet kraschar om det finns två void loop() funktioner samtidigt
+* inte används då programmet kraschar om det finns två void loop() funktioner samtidigt.
 */ 
 //void loop() {
 //  while (Serial.available() > 0){

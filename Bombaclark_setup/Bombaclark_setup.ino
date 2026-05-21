@@ -26,9 +26,9 @@
 const char* ssid = "Slerib";        ///< Ditt nätverks SSID
 const char* password = "Bajsmacka"; ///< Ditt nätverks lösenord
 
-WebServer server(80);
-std::queue<String> commandQueue;  
-bool isBusy = false;              
+WebServer server(80);             ///< Objekt för webbservern på port 80
+std::queue<String> commandQueue;  ///< Kön där inkommande röstkommandon sparas
+bool isBusy = false;              ///< En boolean som kollar om Bombacklark kör ett kommando just nu eller inte             
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
@@ -109,12 +109,15 @@ void setup() {
   delay(2000);
 }
 
+/**
+* @brief Huvudloop som tar kör de kommandon som finns i kön
+*/
 void loop() {
-  server.handleClient();
+  server.handleClient(); // Denna kollar om det kommit något nytt kommando i webbservern
   if (!commandQueue.empty() && !isBusy) {
     isBusy = true;
-    String current_cmd = commandQueue.front();
-    commandQueue.pop();
+    String current_cmd = commandQueue.front(); // Hämtar och definerar nästa kommando i kön till current_cmd (cmd står för command)
+    commandQueue.pop();                        // Raderar det körda kommandot från kön
 
     Serial.println("current command is:" + current_cmd);
 
@@ -127,8 +130,9 @@ void loop() {
     else if (current_cmd == "yes") yes();
     else if (current_cmd == "no") no();
 
-    isBusy = false;
+    isBusy = false; // Säger att kommandot är avklarat så att loopen kan köras igen
   } else {
-    idle();
+    idle();         // Bombaclark återgår till sin idle position när det inte finns några kommandon
+    delay(10);
   }
 }
