@@ -9,14 +9,14 @@
 * @brief Huvudfil för initiering av nätverksfunktioner och variabler
 * @author Erik Sundström
 * @date 2026-05-21
-* Beskrivning: 
+* * Beskrivning: 
 * Denna kod fungerar som bombaclarks initierings sekvens. Koden ansvarar
 * för att konfigurera variabler och initiera de grundliga systemen som krävs för
 * kommunikation mellan mikorkontrollern och AI-modellen. Användaren måste själv skriva
 * in ditt nätverks SSID och Lösenord, sedan sätter koden upp en webbserver och en 
 * kommandokö (std::queue).
 * 
-* Hårdvarukrav & I/O:
+* * Hårdvarukrav & I/O:
 * - ESP32 mikrokontroller.
 * - I2C-kommunikation initieras på pin 6 (SDA) och pin 7 (SCL) för att 
 *   ansluta till PCA9685 servodrivern.
@@ -45,7 +45,7 @@ int back_pos = 30;      ///< Höftvinkel för att flytta benen bakåt
 int out_pos = 120;      ///< Höftvinkel för sidosteg utåt (Bort från kroppen i sidled)
 int in_pos = 140;       ///< Höftvinkel för sidosteg inåt (Mot kroppen i sidled)
 int up_pos = 60;        ///< Hur högt benet ska lyftas när det tar ett steg (Är låg för att ge bättre stabilitet)
-int down_pos = 40;      ///< Hur lågt benet ska vara när det är i kontakt med marken
+int down_pos = 30;      ///< Hur lågt benet ska vara när det är i kontakt med marken
 int neutral_pos = 90;   ///< Centrerad utgångspunkt för alla servon
 
 // =============================================================================
@@ -55,11 +55,11 @@ int base_delay = 100;   ///< Kort paus
 int medium_delay = 300; ///< Medel paus
 int big_delay = 500;    ///< Lång paus
 
-/*
-  @brief handle_command sparar och hanterar inskickade kommandon
-  @note Denna funktionen sparar inskickade kommandon till en kö
-  där de kan köras en och en, detta hindrar koden från att köra flera 
-  kommandon direkt eller från att hoppa över vissa komandon
+/**
+*  @brief handle_command sparar och hanterar inskickade kommandon
+*  @note Denna funktionen sparar inskickade kommandon till en kö
+*  där de kan köras en och en, detta hindrar koden från att köra flera 
+*  kommandon direkt eller från att hoppa över vissa komandon
 */
 void handle_command() {
   if (server.hasArg("cmd")) {
@@ -75,17 +75,16 @@ void handle_command() {
 
 void idle();
 
-/*
-  @brief setup initierar Bombaclarks hårdvarukomponenter, nätverksanslutning och webbserver
-  @note setup körs en gång vid kodens uppstartnig och utför föjlande steg
-  - Startar seriell kommunikation och initierar pin 6 och 7 som I2C pins (För att skicka information till PCA9685:an)
-  - Ansluter till det definerade nätverket och väntar tills anslutningen upptättats
-  - Startar själva webbservern och mappar endpointen "/command" till handle_command
-  - Sätter rätt oscilationsfrekvens och PWM-frekvens (50Hz) och initierar PCA-drivern
-  Till sist körs en delay på 2 sekunder för att ge elektroniken tid att stabiliseras. Denna delayen är väldigt 
-  viktig och om den tas bort kan det leda till att ESP32:an hamnar i en brownout loop.
-  Notera att allting från och med "WiFi.begin(ssid, password);" till och med "server.begin();" 
-  bör kommenteras ut när man kör manuella tester utan wifi
+/**
+*  @brief setup initierar Bombaclarks hårdvarukomponenter, nätverksanslutning och webbserver
+*  @note setup körs en gång vid kodens uppstartnig och utför föjlande steg
+*  - Startar seriell kommunikation och initierar pin 6 och 7 som I2C pins (För att skicka information till PCA9685:an)
+*  - Ansluter till det definerade nätverket och väntar tills anslutningen upptättats
+*  - Startar själva webbservern och mappar endpointen "/command" till handle_command
+*  - Sätter rätt oscilationsfrekvens och PWM-frekvens (50Hz) och initierar PCA-drivern
+*  Till sist körs en delay på 2 sekunder för att ge elektroniken tid att stabiliseras.
+*  Notera att allting från och med "WiFi.begin(ssid, password);" till och med "server.begin();" 
+*  bör kommenteras ut när man kör manuella tester utan wifi
  */
 void setup() {  
   Serial.begin(115200);
@@ -108,4 +107,28 @@ void setup() {
   pwm.setPWMFreq(SERVO_FREQ);
 
   delay(2000);
+}
+
+void loop() {
+  server.handleClient();
+  if (!commandQueue.empty() && !isBusy) {
+    isBusy = true;
+    String current_cmd = commandQueue.front();
+    commandQueue.pop();
+
+    Serial.println("current command is:" + current_cmd);
+
+    if      (current_cmd == "walk forward") walk_forward();
+    else if (current_cmd == "walk backward") walk_backward();
+    else if (current_cmd == "walk right") walk_right();
+    else if (current_cmd == "walk left") walk_left();
+    else if (current_cmd == "idle") idle_reset();
+    else if (current_cmd == "wave") wave();
+    else if (current_cmd == "yes") yes();
+    else if (current_cmd == "no") no();
+
+    isBusy = false;
+  } else {
+    idle();
+  }
 }
