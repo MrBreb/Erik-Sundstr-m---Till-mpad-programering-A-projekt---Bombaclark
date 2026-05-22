@@ -201,13 +201,15 @@ void walk_left(){
 * vinkar den 5 gånger i en förinställd hastighet.
 */ 
 void wave(){
+  // Sätter kroppen i rätt position
   idle();
   single_step("fl", 140);
   single_step("br", 140);
-  move_servo(FL_LEG, neutral_pos);
+  move_servo(BL_LEG, neutral_pos);
   hip_pos[2] = back_pos;
   single_step("fr", 80);
 
+  // Vinkar
   for(int i = 0; i < 5; i++){
     move_servo(FR_LEG, 0);
     delay(base_delay*2);
