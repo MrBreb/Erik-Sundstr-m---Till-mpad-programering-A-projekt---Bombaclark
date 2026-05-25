@@ -23,8 +23,8 @@
 * - Seriell kommunikation sätts till 115200 baud för felsökning.
 */
 
-const char* ssid = "Slerib";        ///< Ditt nätverks SSID
-const char* password = "Bajsmacka"; ///< Ditt nätverks lösenord
+const char* ssid = "Maria marcus";        ///< Nätverkets SSID
+const char* password = "Qwertyui"; ///< Nätverkets lösenord
 
 WebServer server(80);             ///< Objekt för webbservern på port 80
 std::queue<String> commandQueue;  ///< Kön där inkommande röstkommandon sparas
@@ -42,9 +42,11 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // =============================================================================
 int front_pos = 150;    ///< Höftvinkel för att flytta benen frammåt
 int back_pos = 30;      ///< Höftvinkel för att flytta benen bakåt
-int out_pos = 120;      ///< Höftvinkel för sidosteg utåt (Bort från kroppen i sidled)
-int in_pos = 140;       ///< Höftvinkel för sidosteg inåt (Mot kroppen i sidled)
-int up_pos = 60;        ///< Hur högt benet ska lyftas när det tar ett steg (Är låg för att ge bättre stabilitet)
+int front_out_pos = 50; ///< Höftvinkel för sidosteg utåt med frambenen (Bort från kroppen i sidled)
+int front_in_pos = 130; ///< Höftvinkel för sidosteg inåt med frambenen (Mot kroppen i sidled)      
+int back_out_pos = 130; ///< Höftvinkel för sidosteg utåt med bakbenen (Bort från kroppen i sidled)
+int back_in_pos = 50;   ///< Höftvinkel för sidosteg inåt med bakbenen (Mot kroppen i sidled)      
+int up_pos = 70;        ///< Hur högt benet ska lyftas när det tar ett steg (Är låg för att ge bättre stabilitet)
 int down_pos = 30;      ///< Hur lågt benet ska vara när det är i kontakt med marken
 int neutral_pos = 90;   ///< Centrerad utgångspunkt för alla servon
 
@@ -110,7 +112,8 @@ void setup() {
 }
 
 /**
-* @brief Huvudloop som tar kör de kommandon som finns i kön
+* @brief Huvudloop som tar kör de kommandon som finns i kön.
+* @note Denna loop bör vara utkommenterad när man kör manuella tester och kalibreringar för att hindra en krasch när två void loopar kör samtidigt.
 */
 void loop() {
   server.handleClient(); // Denna kollar om det kommit något nytt kommando i webbservern

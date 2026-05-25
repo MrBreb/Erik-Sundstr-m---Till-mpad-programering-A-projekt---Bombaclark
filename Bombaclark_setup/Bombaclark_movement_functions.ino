@@ -32,7 +32,8 @@ const int BR_LEG = 7, BR_HIP = 0;
 * när which servo är en av dessa. Då ifall pos är 40 så blir det istället 140, vise-versa.
 */ 
 void move_servo(int which_servo, int pos){
-  if (which_servo == FR_LEG) pos = 190 - pos; ///< FR_LEG är på grund av hur fästet fungerar lite felmonterat i jämförelse med resten av benen, 190 - which_servo fixar både inverteringen och monterings felet
+  if (which_servo == FR_LEG) pos = 190 - pos; ///< FR_LEG är på grund av hur fästet fungerar inverterad och lite felmonterat i jämförelse med resten av benen, 190 - which_servo fixar både inverteringen och monterings felet
+  if (which_servo == BR_LEG && pos != 0) pos = pos - 15; ///< FR_LEG är på grund av hur fästet fungerar lite felmonterat i jämförelse med resten av benen, pos + 10 fixar monterings felet
   if (which_servo == FL_HIP || which_servo == BL_HIP || which_servo == BL_LEG) pos = 180 - pos;
   int pulse = map(pos, 0, 180, SERVOMIN, SERVOMAX); 
   pwm.setPWM(which_servo, 0, pulse);
@@ -127,9 +128,9 @@ void walk_forward(){
   single_step("fr", front_pos);
 
   /* Trycker ifrån med alla ben samtidigt, flyttar bara höfterna */
-  move_servo(FL_HIP, 180 - back_pos); hip_pos[0] = back_pos; 
+  move_servo(FL_HIP, back_pos); hip_pos[0] = back_pos; 
   move_servo(FR_HIP, back_pos);       hip_pos[1] = back_pos; 
-  move_servo(BL_HIP, 180 - back_pos); hip_pos[2] = back_pos; 
+  move_servo(BL_HIP, back_pos); hip_pos[2] = back_pos; 
   move_servo(BR_HIP, back_pos);       hip_pos[3] = back_pos;
   
   delay(big_delay);
@@ -149,9 +150,9 @@ void walk_backward(){
   single_step("fr", back_pos);
 
   /* Drar fram alla ben samtidigt, flyttar bara höfterna */
-  move_servo(FL_HIP, 180 - front_pos); hip_pos[0] = front_pos; 
+  move_servo(FL_HIP, front_pos); hip_pos[0] = front_pos; 
   move_servo(FR_HIP, front_pos);       hip_pos[1] = front_pos;
-  move_servo(BL_HIP, 180 - front_pos); hip_pos[2] = front_pos;
+  move_servo(BL_HIP, front_pos); hip_pos[2] = front_pos;
   move_servo(BR_HIP, front_pos);       hip_pos[3] = front_pos;
 
   delay(big_delay);
@@ -162,35 +163,36 @@ void walk_backward(){
 */ 
 void walk_right(){
   /* Flyttar alla ben till höger, ett ben i taget */
-  single_step("bl", 180 - in_pos);
-  single_step("fl", in_pos);
-  single_step("br", 180 - out_pos);
-  single_step("fr", out_pos);
+  single_step("bl", back_in_pos);            
+  single_step("fl", front_in_pos);   
+  single_step("br", back_out_pos);    
+  single_step("fr", front_out_pos);       
 
   /* Flyttar alla ben till vänster samtidigt, flyttar bara höfterna */
-  move_servo(FL_HIP, out_pos);       hip_pos[0] = out_pos;
-  move_servo(FR_HIP, in_pos);        hip_pos[1] = in_pos;
-  move_servo(BL_HIP, 180 - out_pos); hip_pos[2] = out_pos;
-  move_servo(BR_HIP, 180 - in_pos);  hip_pos[3] = in_pos;
+  move_servo(BL_HIP, back_out_pos);  hip_pos[2] = back_out_pos; 
+  move_servo(FL_HIP, front_out_pos); hip_pos[0] = front_out_pos; 
+  move_servo(BR_HIP, back_in_pos);   hip_pos[3] = back_in_pos;
+  move_servo(FR_HIP, front_in_pos);  hip_pos[1] = front_in_pos;
 
   delay(big_delay);
 }
 
 /**
 * @brief Flyttar alla ben till vänster ett i taget och sedan drar alla ben åt höger samtidigt.
+* @note Alla 180 - pos är en temporär korrigering
 */ 
 void walk_left(){
   /* Flyttar alla ben till vänster, ett ben i taget */
-  single_step("bl", 180 - out_pos);
-  single_step("fl", out_pos);
-  single_step("br", 180 - in_pos);
-  single_step("fr", in_pos);
+  single_step("bl", back_out_pos);
+  single_step("fl", front_out_pos);
+  single_step("br", back_in_pos);
+  single_step("fr", front_in_pos);
 
   /* Flyttar alla ben till höger samtidigt, flyttar bara höfterna */
-  move_servo(FL_HIP, in_pos);        hip_pos[0] = in_pos;
-  move_servo(FR_HIP, out_pos);       hip_pos[1] = out_pos;
-  move_servo(BL_HIP, 180 - in_pos);  hip_pos[2] = in_pos;
-  move_servo(BR_HIP, 180 - out_pos); hip_pos[3] = out_pos;
+  move_servo(BL_HIP, back_in_pos);    hip_pos[2] = back_in_pos;
+  move_servo(FL_HIP, front_in_pos);   hip_pos[0] = front_in_pos;
+  move_servo(BR_HIP, back_out_pos);   hip_pos[3] = back_out_pos;
+  move_servo(FR_HIP, front_out_pos);  hip_pos[1] = front_out_pos;
 
   delay(big_delay);
 }
@@ -203,18 +205,18 @@ void walk_left(){
 void wave(){
   // Sätter kroppen i rätt position
   idle();
-  single_step("fl", 140);
-  single_step("br", 140);
-  move_servo(BL_LEG, neutral_pos);
+  single_step("fl", front_pos);
+  single_step("br", front_pos);
+  move_servo(BL_LEG, 140);
   hip_pos[2] = back_pos;
-  single_step("fr", 80);
+  single_step("fr", 40);
 
   // Vinkar
   for(int i = 0; i < 5; i++){
-    move_servo(FR_LEG, 0);
-    delay(base_delay*2);
-    move_servo(FR_LEG, 30);
-    delay(base_delay*2);
+    move_servo(FR_LEG, 110);
+    delay(medium_delay);
+    move_servo(FR_LEG, 160);
+    delay(medium_delay);
   }
   delay(base_delay);
 }
@@ -225,10 +227,10 @@ void wave(){
 void yes(){
   for(int i = 0; i < 3; i++){
     move_servo(FL_LEG, 60);
-    move_servo(FR_LEG, 180 - 60);
+    move_servo(FR_LEG, 60);
     delay(medium_delay);
     move_servo(FL_LEG, down_pos);
-    move_servo(FR_LEG, 180 - down_pos);
+    move_servo(FR_LEG, down_pos);
     delay(medium_delay);
   }
   delay(base_delay);
@@ -240,10 +242,10 @@ void yes(){
 void no(){
   for(int i = 0; i < 3; i++){
     move_servo(FL_HIP, 140);
-    move_servo(FR_HIP, 140);
+    move_servo(FR_HIP, 180 - 140);
     delay(medium_delay);
     move_servo(FL_HIP, 40);
-    move_servo(FR_HIP, 40);
+    move_servo(FR_HIP, 180 - 40);
     delay(medium_delay);
   }
   move_servo(FL_HIP, neutral_pos);
